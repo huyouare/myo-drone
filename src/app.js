@@ -1,9 +1,11 @@
+var Myo = require('./myojs-0.8.6');
+
 var webSocket = require('ws'),
     ws = new webSocket('ws://127.0.0.1:6437'),
     five = require('johnny-five'),
     board = new five.Board(),
     SerialPort = require("serialport").SerialPort,
-    serialPort = new SerialPort("/dev/cu.usbmodem1411", {
+    serialPort = new SerialPort("/dev/cu.usbmodem14141", {
 		baudrate: 57600
 	}),
 	led, frame, pitch, roll, hand_normal;
@@ -11,6 +13,36 @@ var webSocket = require('ws'),
 	var sensitivity_constant = -100;
 
 	var out = [0, 0, 0];
+
+var initMyo = function() {
+        "use strict";
+
+        window.hub = new Myo.Hub();
+        window.quaternion = new THREE.Quaternion();
+
+        window.hub.on('frame', function(frame) {
+
+            window.quaternion.x = frame.rotation.y;
+            window.quaternion.y = frame.rotation.z;
+            window.quaternion.z = -frame.rotation.x;
+            window.quaternion.w = frame.rotation.w;
+
+            if(!window.baseRotation) {
+                window.baseRotation = quaternion.clone();
+                window.baseRotation = window.baseRotation.conjugate();
+            }
+
+            window.quaternion.multiply(baseRotation);
+            window.quaternion.normalize();
+            window.quaternion.z = -quaternion.z;
+
+            window.cube.setRotationFromQuaternion(window.quaternion);
+
+            renderer.render(scene, camera);
+        });
+    };
+    initScene();
+    initMyo();
 
 var socketWrite = function(sensitivity_constant) {
 	mvg_avg = [0,0,0];    
