@@ -14,54 +14,37 @@ var webSocket = require('ws'),
 
 	var out = [0, 0, 0];
 
-var initMyo = function() {
+  var euler = [0, 0, 0];
+
+var initMyo = function(sensitivity_constant) {
         "use strict";
 
         window.hub = new Myo.Hub();
-        window.quaternion = new THREE.Quaternion();
 
         window.hub.on('frame', function(frame) {
 
-            window.quaternion.x = frame.rotation.y;
-            window.quaternion.y = frame.rotation.z;
-            window.quaternion.z = -frame.rotation.x;
-            window.quaternion.w = frame.rotation.w;
+            euler[0] = frame.euler.y;
+            euler[1] = frame.euler.z;
+            euler[2] = frame.euler.x;
 
-            if(!window.baseRotation) {
-                window.baseRotation = quaternion.clone();
-                window.baseRotation = window.baseRotation.conjugate();
-            }
-
-            window.quaternion.multiply(baseRotation);
-            window.quaternion.normalize();
-            window.quaternion.z = -quaternion.z;
-
-            window.cube.setRotationFromQuaternion(window.quaternion);
-
-            renderer.render(scene, camera);
         });
     };
-    initScene();
-    initMyo();
+initMyo();
 
 var socketWrite = function(sensitivity_constant) {
 	mvg_avg = [0,0,0];    
     ws.on('message', function(data, flags) {
-        frame = JSON.parse(data); 
+       //  frame = JSON.parse(data); 
 
-        if(frame.hands && frame.hands.length > 0) {
+       //  if(frame.hands && frame.hands.length > 0) {
 
-        	hand_normal = frame.hands[0].palmNormal;
+       //  	hand_normal = frame.hands[0].palmNormal;
 
-	     	console.log('Hand Normal: ' + hand_normal); // [roll, thumb_thing, pitch]
-
-	 //    	// Leap Roll: Left is positive 
-	 //    	// Leap Pitch: Forward is positive
-	 //    	// Leap Thumb on Left => -1
+	     	// console.log('Hand Normal: ' + hand_normal); // [roll, thumb_thing, pitch]
 	 		
-	    	pitch = Math.round(hand_normal[0]*sensitivity_constant + 500);	
+	    	pitch = Math.round(euler[0]*sensitivity_constant + 500);	
 
-	    	roll = Math.round(hand_normal[2]*sensitivity_constant + 500);
+	    	roll = Math.round(euler[2]*sensitivity_constant + 500);
 
 	    	serialPort.write("1" + roll + "\r");
 
