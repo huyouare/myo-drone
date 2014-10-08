@@ -32,7 +32,7 @@ var initMyo = function(sensitivity_constant) {
 
         pitch = Math.round(euler.pitch * -170 + 500);
 
-        roll = Math.round(euler.roll * 100 + 500);
+        roll = Math.round(euler.roll *  100 + 500);
 
         console.log(pitch);
         console.log(roll);
